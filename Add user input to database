@@ -1,0 +1,50 @@
+//Main data entry function, note named ranges "Input", "Actual"
+//"Actual" is where data is inputted by user
+//"Input" is where input is sent and formatted or converted by sheet for calculating
+function addData()
+{
+  const ss = SpreadsheetApp.getActiveSpreadsheet();
+
+  //Collect Data
+  const sourceRange = ss.getRangeByName("Input");
+  const sourceVals = sourceRange.getValues().flat();
+  const actualSource = ss.getRangeByName("Actual");
+
+  //Validate data is present
+  const anyEmptyCell = sourceVals.findIndex(cell => cell == "");
+  if(anyEmptyCell !== -1)
+  {
+    const ui = SpreadsheetApp.getUi();
+//alert is in Spanish, creates title and body text
+    ui.alert(
+      "Hay celdas vacias! >:(",
+      "Comprueba que todos los campos estan rellenos.",
+      ui.ButtonSet.OK
+    );
+    return;
+  };
+
+  //Gather date
+  const date = new Date();
+  const data = [...sourceVals, date, ...rest];
+
+  //Append the data to sheet "Datos"
+  const destinationSheet = ss.getSheetByName("Datos");
+  destinationSheet.appendRow(data);
+
+  //Clear source
+  actualSource.clearContent();
+}
+
+//Trigger function for mobile, note sheet name "Home" and trigger cell location "B9"
+function onEdit(e)
+{
+  const range = e.range;
+  const sheetName = "Home";
+//if edited cell is ENVIAR dropdown, run function, reset dropdown
+  if(range.getSheet().getSheetName() == sheetName && range.getA1Notation() == "B9")
+  {
+    addData();
+    range.clearContent();
+  }
+}
